@@ -1,0 +1,30 @@
+apply plugin: 'java-library'
+
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+
+    implementation 'com.google.guava:guava:23.1-jre'
+
+    testImplementation 'junit:junit:4.12'
+}
+
+ext.moduleName = 'base.service'
+
+afterEvaluate {
+	repositories {
+        jcenter()
+    }
+
+    // tag::autoModuleName[]
+    jar {
+        inputs.property("moduleName", moduleName)
+        manifest {
+            attributes('Automatic-Module-Name': moduleName)
+        }
+    }
+    // end::autoModuleName[]
+}
