@@ -1,18 +1,48 @@
 apply plugin: 'java-library'
+apply plugin: 'war'
 
-
-repositories {
-    jcenter()
-}
-
-dependencies {
-
-    implementation 'com.google.guava:guava:23.1-jre'
-
-    testImplementation 'junit:junit:4.12'
-}
-
+version = '1.0'
 ext.moduleName = 'base.service'
+
+def addReads = [ "--add-reads", "com.test=ALL-UNNAMED" ]
+def modulePath = [ "--module-path", moduleName ]
+
+compileJava.options.encoding = 'ISO-8859-1'
+compileJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+            '--module-path', classpath.asPath,
+        ]
+        classpath = files()  
+    }
+}
+
+compileTestJava {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+            '--module-path', classpath.asPath, 
+            '--add-modules', 'junit',  
+            '--add-reads', "$moduleName=junit", 
+            '--patch-module', "$moduleName=" + files(sourceSets.test.java.srcDirs).asPath, 
+        ]
+        classpath = files()
+    }
+}
+
+test {
+    inputs.property("moduleName", moduleName)
+    doFirst {
+        jvmArgs = [
+            '--module-path', classpath.asPath, 
+            '--add-modules', 'ALL-MODULE-PATH', 
+            '--add-reads', "$moduleName=junit", 
+            '--patch-module', "$moduleName=" + files(sourceSets.test.java.outputDir).asPath, 
+        ]
+        classpath = files()
+    }
+}
 
 afterEvaluate {
 	repositories {
@@ -27,4 +57,108 @@ afterEvaluate {
         }
     }
     // end::autoModuleName[]
+}
+
+	// Hibernate
+	ext.hibernateCoreVersion = '5.2.12.Final'
+	ext.hibernateValidatorVersion = '6.0.7.Final'
+	ext.hibernateC3p0Version = '5.2.12.Final'
+	// Spring
+	ext.springOrmVersion = '5.0.2.RELEASE'
+	ext.springContextVersion = '5.0.2.RELEASE'
+	ext.springTxVersion = '5.0.2.RELEASE'
+	ext.springWebVersion = '5.0.2.RELEASE'
+	ext.springWebmvcVersion = '5.0.2.RELEASE'
+	ext.springJdbcVersion = '5.0.2.RELEASE'
+	ext.springSecurityConfigVersion = '5.0.0.RELEASE'
+	ext.springSecurityOauth2Version = '2.2.1.RELEASE'
+	ext.springSecurityWebVersion = '5.0.0.RELEASE'
+	ext.springSecurityWebVersion = '5.0.0.RELEASE'
+	ext.springBootStarterWebVersion = '2.0.0.M7'
+	
+	// Log4j
+	ext.log4jCoreVersion = '2.10.0'
+	
+	// Mysql connector
+	ext.mysqlConnectorJavaVersion = '6.0.6'
+	
+	// Javax
+	ext.javaxSservletApiVersion = '4.0.0'
+	
+	// HyperSQL Database
+	ext.hsqldbVersion = '2.4.0'
+	
+	// Javaee
+	ext.javaeeApiVersion = '8.0'
+	
+	ext.httpclientVersion = '4.5.2'
+	
+	ext.jbossAsControllerClientVersion = '7.1.1.Final'
+	
+	// Reflections
+	ext.reflectionsVersion = '0.9.11'
+	
+	// Apache Commons Lang
+	ext.commonsLang3Version = '3.7'
+	
+	// Guava
+	ext.guavaVersion = '23.1-jre'
+	
+	// Commons Collections
+	ext.commonsCollections4Version = '4.1'
+	
+	// Jackson Datatype: JSR310
+	ext.jacksonDataTypeJsr310Version = '2.9.3'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    jcenter()
+    maven {
+        url 'https://repo.spring.io/libs-milestone'
+    }
+}
+
+dependencies {
+	
+	// Javax Servlet
+	implementation "javax.servlet:javax.servlet-api:${javaxSservletApiVersion}"
+	
+    // Javaee
+    runtimeOnly "javax:javaee-api:${javaeeApiVersion}"
+    
+	// Log4j
+	implementation "org.apache.logging.log4j:log4j-core:${log4jCoreVersion}"
+	
+	// Guava
+    implementation "com.google.guava:guava:${guavaVersion}"
+    
+   	// Driver mysql
+    implementation "mysql:mysql-connector-java:${mysqlConnectorJavaVersion}"
+    
+    //Commonlang3
+    implementation "org.apache.commons:commons-lang3:${commonsLang3Version}"
+    
+    // Jackson
+	implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${jacksonDataTypeJsr310Version}"
+	
+    // Spring
+	implementation "org.springframework.boot:spring-boot-starter-web:${springBootStarterWebVersion}"
+	implementation "org.springframework.security:spring-security-web:${springSecurityWebVersion}"
+    implementation "org.springframework.security:spring-security-config:${springSecurityConfigVersion}"
+    implementation "org.springframework:spring-orm:${springOrmVersion}"
+    implementation ("org.springframework.security.oauth:spring-security-oauth2:${springSecurityOauth2Version}"){exclude group:'org.codehaus.jackson'}
+    implementation "org.springframework:spring-context:${springContextVersion}"
+    implementation "org.springframework:spring-tx:${springTxVersion}"
+    implementation "org.springframework:spring-webmvc:${springWebmvcVersion}"
+    implementation "org.springframework:spring-jdbc:${springJdbcVersion}"
+    
+	
+	// Hibernate
+	implementation "org.hibernate:hibernate-core:${hibernateCoreVersion}"
+    implementation "org.hibernate:hibernate-validator:${hibernateValidatorVersion}"
+    implementation "org.hibernate:hibernate-c3p0:${hibernateC3p0Version}"
+    
+	// Junit
+    testImplementation 'junit:junit:4.12'
 }
